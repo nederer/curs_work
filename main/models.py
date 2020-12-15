@@ -32,18 +32,18 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
 
-    name = models.CharField(max_length=100)
-    second_name = models.CharField(max_length=100)
-    surname = models.CharField(max_length=100)
+    name = models.CharField(_("Имя"), max_length=100)
+    second_name = models.CharField(_("Отчество"),max_length=100)
+    surname = models.CharField(_("Фамилия"),max_length=100)
 
-    position = models.CharField(max_length=100)
+    position = models.CharField(_("Должность"), max_length=100)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
 
     date_joined = models.DateTimeField(_("Зарегистрирован"), auto_now_add=True)
-    is_active = models.BooleanField(_("Активный"), default=True)
-    is_staff = models.BooleanField(_("Сотрудник"), default=False)
+    is_active = models.BooleanField(_("Активный"), default=True, help_text=_("Активирован ли аккаунт пользователя"))
+    is_staff = models.BooleanField(_("Сотрудник"), default=False, help_text=_("Является ли сотрудником"))
 
     objects = UserManager()
 

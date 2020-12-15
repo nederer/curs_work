@@ -30,13 +30,20 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    SUPER_MASTER, MASTER, SLAVE = "Руководитель компании", "Руководитель подразделения", "Работник"
+    POSITION_CHOICES = (
+        (SUPER_MASTER, _("Руководитель компании")),
+        (MASTER, _("Руководитель подразделени")),
+        (SLAVE, _("Работник")),
+    )
+
     email = models.EmailField(unique=True)
 
     name = models.CharField(_("Имя"), max_length=100)
     second_name = models.CharField(_("Отчество"),max_length=100)
     surname = models.CharField(_("Фамилия"),max_length=100)
 
-    position = models.CharField(_("Должность"), max_length=100)
+    position = models.CharField(_("Должность"), choices=POSITION_CHOICES, default=SLAVE, max_length=30)
 
     EMAIL_FIELD = "email"
     USERNAME_FIELD = "email"
@@ -53,3 +60,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
+
+
+def tommorow():
+    return timezone.now() + timedelta(days=1)
+
+
+class Assignment(models.Model):
+    master = models.ForeignKey(User, on_delete=models.CASCADE, related_name="master")
+    slave = models.ForeignKey(User, on_delete=models.CASCADE, related_name="slave")
+
+    name = models.CharField(_("Название поручения"), max_length=255)
+    description = models.TextField(_("Описание поручения"))
+
+    date = models.DateField(_("Дата создания"), auto_now=True)
+    duration = models.IntegerField(_("Длительность"), help_text=_("В днях"), default=1)
+    expiration_date = models.DateField(_("Дата сдачи"), default=tommorow)
+
+    class Meta:
+        verbose_name = "Поручение"
+        verbose_name_plural = "Поручения"
+
+    def __str__(self):
+        return self.name
